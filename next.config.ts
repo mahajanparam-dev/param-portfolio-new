@@ -1,5 +1,7 @@
 const nextConfig = {
-  reactStrictMode: true,
+  webpack: (config: any) => {
+    return config;
+  },
 };
 
 export default nextConfig;
