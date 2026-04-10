@@ -1,147 +1,112 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Loader from "../components/Loader";
-import { motion } from "framer-motion";
 import CursorGlow from "../components/CursorGlow";
-import Navbar from "../components/Navbar";
+import SideNavbar from "../components/SideNavbar";
 
+import Hero from "../components/sections/Hero";
+import About from "../components/sections/About";
+import Skills from "../components/sections/Skills";
+import Projects from "../components/sections/Projects";
+import Contact from "../components/sections/Contact";
 
+import { useEffect, useState } from "react";
+import {
+  motion,
+  useScroll,
+  useSpring,
+  useTransform,
+  useMotionValue,
+} from "framer-motion";
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
 
+  // ✅ SCROLL FIX (no glitch)
+  const { scrollYProgress } = useScroll();
+  const smooth = useSpring(scrollYProgress, {
+    stiffness: 80,
+    damping: 20,
+    restDelta: 0.001,
+  });
+
+  // ✅ CURSOR ONLY HORIZONTAL (NO SCROLL BREAK)
+  const mouseX = useMotionValue(0);
+
   useEffect(() => {
-    setTimeout(() => setLoading(false), 2000);
+    const move = (e: MouseEvent) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouseX.set(x);
+    };
+
+    window.addEventListener("mousemove", move);
+    return () => window.removeEventListener("mousemove", move);
   }, []);
 
-  if (loading) return <Loader />;
+  const smoothX = useSpring(mouseX, { stiffness: 50, damping: 20 });
+
+  // ✅ ONLY HORIZONTAL ROTATION
+  const rotateY = useTransform(smoothX, [-1, 1], [-6, 6]);
+
+  // ✅ LOADER FIX
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+      window.scrollTo(0, 0);
+    }, 700);
+  }, []);
+
+  if (loading) return <Loader show={loading} />;
 
   return (
-    <main className="relative bg-black text-white px-6 md:px-20 overflow-hidden">
-  
-  {/* Background gradient */}
-  <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_30%_20%,rgba(168,85,247,0.08),transparent_40%),radial-gradient(circle_at_70%_60%,rgba(59,130,246,0.08),transparent_40%)]" />
+    <main className="relative bg-black text-white overflow-x-hidden">
 
-     <Navbar />
-      {/* HERO */}
-     <section className="h-screen flex flex-col justify-center relative">
-        <motion.h1 id="hero"
-  initial={{ opacity: 0, y: 60 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 1 }}
-  whileHover={{ scale: 1.02 }}
-  className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent"
-  >
-          Param Mahajan
-        </motion.h1>
-         <motion.h1 
-          initial={{ opacity: 0, y: 60 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}>
-        <p className="mt-4 text-gray-400 max-w-xl">
-          Electronics & Telecommunication Engineer | Embedded Systems | VLSI | Secure Design
-        </p>
-        <a
-  href="/Param-Resume.pdf"
-  download
-  className="inline-block mt-6 px-6 py-2 border border-gray-600 rounded-full text-sm hover:border-purple-400 hover:text-white transition"
->
-  Download Resume
-</a>
+     {/* 🔥 SCROLL PROGRESS */}
+<motion.div
+  style={{ scaleX: smooth }}
+  className="fixed top-0 left-0 right-0 h-[2px]
+  bg-gradient-to-r from-blue-900 via-blue-500 to-blue-900
+  origin-left z-[100]"
+/>
 
-        </motion.h1>
-      </section>
+      {/* 🔥 BACKGROUND */}
+        <div className="absolute inset-0 bg-black" />
+        <div className="absolute inset-0 blur-3xl
+          bg-[radial-gradient(circle_at_30%_20%,rgba(0,0,120,0.15),transparent_40%),
+               radial-gradient(circle_at_70%_60%,rgba(0,0,200,0.15),transparent_40%)]"
+        />
+     
 
-      {/* ABOUT */}
-      <motion.section id="about"
-        initial={{ opacity: 0, y: 80 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        viewport={{ once: true }}
-        className="py-20 max-w-3xl"
-        >
-        <h2 className="text-2xl mb-6">About</h2>
-        <p className="text-gray-400">
-          Results-driven Electronics and Telecommunication Engineering student specializing in Embedded Systems, VLSI design, and Verilog HDL. Strong foundation in digital architecture and secure system design. Experienced in open-source ecosystems, Kubernetes fundamentals, and cybersecurity principles. Focused on building scalable, silicon-ready, and security-conscious engineering solutions.
-        </p>
-      </motion.section>
+      {/* UI */}
+      <SideNavbar />
+      <CursorGlow />
 
-      {/* SKILLS */}
-      <motion.section id="skills"
-  initial={{ opacity: 0, y: 80 }}
-  whileInView={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.8 }}
-  viewport={{ once: true }}
-  className="py-20 max-w-3xl"
->
-        <h2 className="text-2xl mb-6">Skills</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {[
-            "Embedded Systems","VLSI Design","Verilog HDL","Digital Electronics",
-            "Linux Fundamentals","Kubernetes Basics","AI-assisted DevOps Workflows",
-            "npm Security Awareness","Cybersecurity Fundamentals","Effective Communication",
-            "Presentation Skills","System Design","Power Electronics"
-          ].map((skill, i) => (
-            <motion.div 
-               key={i}
-               whileHover={{ scale: 1.08 }}
-              className="relative border border-gray-700 hover:border-purple-400 p-4 rounded-xl overflow-hidden group cursor-pointer transition duration-300">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/30 via-blue-500/20 to-purple-500/30 opacity-0 group-hover:opacity-100 blur-xl transition duration-500" />
-               <p className="relative z-10">{skill}</p>
-            </motion.div>
-          ))}
+      {/* 🔥 3D ENGINE (SAFE VERSION) */}
+      <motion.div
+        style={{
+          rotateY,
+          transformPerspective: 1200,
+        }}
+        className="relative z-10"
+      >
+        <div className="relative z-20">
+
+          <Hero />
+          <About />
+          <Skills />
+          <Projects />
+          <Contact />
+
         </div>
-      </motion.section>
+      </motion.div>
 
-      {/* PROJECTS */}
-      <motion.section id="projects"
-  initial={{ opacity: 0, y: 80 }}
-  whileInView={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.8 }}
-  viewport={{ once: true }}
-  className="py-20 max-w-3xl"
->
-        <h2 className="text-2xl mb-6">Projects</h2>
-        <ul className="text-gray-400 space-y-2">
-          <li>Automated Gate System (WOWKI)</li>
-          <li>Portfolio Website</li>
-          <li>IoT Circuit Designs</li>
-        </ul>
-     </motion.section>
+      {/* 🔥 DEPTH OVERLAY */}
+      <div className="fixed inset-0 pointer-events-none z-30">
+        <div className="absolute inset-0 bg-gradient-to-b 
+          from-transparent via-black/10 to-black/40"
+        />
+      </div>
 
-      {/* EXPERIENCE */}
-      <motion.section id="experience"
-  initial={{ opacity: 0, y: 80 }}
-  whileInView={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.8 }}
-  viewport={{ once: true }}
-  className="py-20 max-w-3xl"
->
-        <h2 className="text-2xl mb-6">Experience & Workshops</h2>
-        <ul className="text-gray-400 space-y-2">
-          <li>Red Hat Open Source Developers Conference</li>
-          <li>Kubernetes & AI Integration Workshop</li>
-          <li>Cybersecurity Workshop</li>
-          <li>AI for All Workshop</li>
-        </ul>
-      </motion.section>
-
-      {/* CONTACT */}
-        <motion.section id="contact"
-  initial={{ opacity: 0, y: 80 }}
-  whileInView={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.8 }}
-  viewport={{ once: true }}
-  className="py-20 max-w-3xl">
-        <h2 className="text-2xl mb-6">Contact</h2>
-        <div className="flex gap-6 text-gray-400">
-          <a href="https://github.com/mahajanparam-dev" target="_blank">GitHub</a>
-          <a href="https://www.linkedin.com/in/param-mahajan-386982383/" target="_blank">LinkedIn</a>
-          <a href="https://www.instagram.com/_i.am.param?igsh=NHowcGVjaWVvNnQ5" target="_blank">Instagram</a>
-        </div>
-     </motion.section>
-     <CursorGlow />
-    </main > 
+    </main>
   );
 }
