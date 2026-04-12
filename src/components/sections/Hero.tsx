@@ -52,7 +52,7 @@ export default function Hero() {
 
         {/* Subtitle */}
         <p className="text-gray-300 max-w-xl mb-8 leading-relaxed">
-          I build systems, break them, and understand them from silicon to software.
+         Building embedded intelligence & VLSI systems for the next generation of hardware.
         </p>
 
         {/* Buttons */}
